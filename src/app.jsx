@@ -11,6 +11,14 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
+import Modal from 'react-bootstrap/Modal';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDay } from '@fortawesome/free-solid-svg-icons';
+
+import 'react-dates/initialize';
+import { DateRangePicker } from 'react-dates';
+import 'react-dates/lib/css/_datepicker.css';
 
 import { CheckBoxSelection, Inject, MultiSelectComponent } from '@syncfusion/ej2-react-dropdowns';
 
@@ -27,6 +35,10 @@ export class App extends React.Component {
         this.state = {
             data: [],
             dates: [],
+            startDate: null,
+            endDate: null,
+            focusedInput: null,
+            focused: false,
             regions: [],
             countries: [],
             selectedCountries: [],
@@ -109,32 +121,21 @@ export class App extends React.Component {
                     data: sortedData,
                     regions: regionsList,
                     countries: countries,
-                    currentData: sortedData,
+                    currentData: sortedData
                 }
             );
 
 
+
         }).catch(function(err) {
 
-            
+            console.log(err)
 
         })
 
 
     }
     componentDidUpdate() {}
-
-    // filterByRegion = (e) => { 
-    //     let regionCountriesList = _.filter(this.state.countries, (o) => { return o.region == e.target.value });
-    //     regionCountriesList = regionCountriesList.map((country) => { return { location: country.location, iso_code: country.iso_code }});
-    //     let regionCountriesTemp = regionCountriesList.map((country) => { return country.location });
-    //     let filteredData = this.state.data;
-    //     if(e.target.value != 'all') {
-    //         filteredData = _.filter(this.state.data, (o) => { return regionCountriesTemp.indexOf(o.location) > -1 });
-    //     }
-    //     this.setState({currentData: filteredData});
-    //     this.setState({selectedCountries: regionCountriesList});
-    // }
 
     filterByCountry = (e) => {
 
@@ -145,6 +146,12 @@ export class App extends React.Component {
         this.setState({
             currentData: filteredData
         });
+    }
+
+    select_dates = ({ startDate, endDate }) => {
+
+        this.setState({ startDate, endDate });
+    
     }
 
     setCurrentDate = (e) => {
@@ -163,7 +170,20 @@ export class App extends React.Component {
                             
                         </Col>
                         <Col>
-                            
+                            <DateRangePicker
+                                startDate={this.state.startDate} 
+                                startDateId="startDate" 
+                                endDate={this.state.endDate} 
+                                endDateId="endDate" 
+                                onDatesChange={this.select_dates} 
+                                focusedInput={this.state.focusedInput} 
+                                onFocusChange={focusedInput => this.setState({ focusedInput })} 
+                                startDatePlaceholderText='START'
+                                endDatePlaceholderText='END'
+                                small={true}
+                                isOutsideRange={() => false}
+                                displayFormat='DD/MM/YYYY'
+                            />
                         </Col>
                     </Row>
                 </Container>

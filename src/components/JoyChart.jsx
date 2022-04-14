@@ -2,8 +2,6 @@ import React from 'react';
 
 import _ from 'lodash';
 import * as d3 from 'd3';
-import { selectAll } from 'd3';
-
 
 export class JoyChart extends React.Component {
     
@@ -97,8 +95,6 @@ export class JoyChart extends React.Component {
         container.append("g")
             .call(yAxis);
 
-        
-
         let area = d3.area()
             .curve(d3.curveBasis)
             .x((d,i) => {
@@ -177,9 +173,25 @@ export class JoyChart extends React.Component {
 
         mouseG.append("path")
             .attr("class", "mouse-line")
-            .style("stroke", "#666")
+            .style("stroke", "#333")
             .style("stroke-width", "1px")
             .style("opacity", "1")
+
+        var dateTag = mouseG.append('g')
+            .attr('class','date-tag')
+
+        dateTag.append('rect')
+            .attr('class','current-date-bg')
+            .attr('fill', '#333')
+            .attr('y', 9)
+
+        dateTag.append('text')
+            .attr('class','current-date')
+            .text('-')
+            .attr('y', 20)
+            .attr('fill','#fff')
+            .style('font-size','10px')
+
 
         const bisectDate = d3.bisector(d=>d.date).right;
         
@@ -194,6 +206,34 @@ export class JoyChart extends React.Component {
                     let value = seriesDate.value
                     return (seriesDate != undefined && value != undefined) ? Math.round(value) : '--';        
                 })
+            
+            d3.select('.current-date-bg')
+                .attr('x', () => {
+                    let canvasWidth = this.state.settings.width - this.state.settings.margin.right - this.state.settings.margin.left;
+                    if(mouse[0] > this.state.settings.margin.left + (canvasWidth/2)) {
+                        return mouse[0] - (d3.select('.current-date').node().getBoundingClientRect().width + 10);
+                    } else {
+                        return mouse[0];
+                    }
+                })
+                .attr('y', mouse[1] - 11)
+                .attr('width', d3.select('.current-date').node().getBoundingClientRect().width + 10)
+                .attr('height',  d3.select('.current-date').node().getBoundingClientRect().height)
+
+            d3.select('.current-date') 
+                .attr('x', () => {
+                    let canvasWidth = this.state.settings.width - this.state.settings.margin.right - this.state.settings.margin.left;
+                    if(mouse[0] > this.state.settings.margin.left + (canvasWidth/2)) {
+                        return mouse[0] - d3.select('.current-date').node().getBoundingClientRect().width - 5;
+                    } else {
+                        return mouse[0] + 5;
+                    }
+                })                
+                .attr('y', mouse[1])
+                .text((d) => {
+                    let checkDate = new Date(x.invert(mouse[0])).toISOString().split('T')[0];
+                    return checkDate;
+                })
 
             d3.select(".mouse-line")
                 .attr("d", () => {
@@ -207,10 +247,6 @@ export class JoyChart extends React.Component {
             d3.select(".mouse-line")
             
         })
-
-    
-        
-
 
     }
 
