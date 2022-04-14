@@ -1,0 +1,44 @@
+$primary:       #094151;
+$control-grey: #DFE6E8;
+
+$theme-colors: (
+    "primary": $primary,
+    "control-grey": $control-grey,
+    "warning": #ffc107,
+    "light-grey": #f6f6f6
+);
+
+// $utilities: (
+//     "rounded": (
+//         property: border-radius,
+//         class: rounded,
+//         values: (
+//             4: 10px,
+//         )
+//     ),
+// );
+
+@import "bootstrap/scss/bootstrap";
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,300;0,500;0,600;1,700&display=swap');
+
+@import "../node_modules/@syncfusion/ej2-base/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-buttons/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-inputs/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-react-dropdowns/styles/bootstrap5.css";
+
+body {
+    background: #ECEFF0;
+}
+
+header {
+    background: #f8f8f8 !important;
+}
+
+
+.control-grey {
+    background: $control-grey  !important;
+}
+
+.e-multi-select-wrapper {
+    background-color: $control-grey
+}
