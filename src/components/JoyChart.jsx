@@ -2,6 +2,7 @@ import React from 'react';
 
 import _ from 'lodash';
 import * as d3 from 'd3';
+import * as Color from 'color';
 
 export class JoyChart extends React.Component {
     
@@ -17,10 +18,10 @@ export class JoyChart extends React.Component {
             ],
             settings: {
                 height: 800,
-                width: d3.select('.container').node().getBoundingClientRect().width,
+                width: undefined,
                 margin: {
                     top: 100, 
-                    right: 40, 
+                    right: 70, 
                     bottom: 30, 
                     left: 100
                 },
@@ -30,11 +31,25 @@ export class JoyChart extends React.Component {
     }
 
     componentDidMount() {
-        this.showData();
+
+        setTimeout(() => {
+            var settings = {...this.state.settings}
+            settings.width = d3.select('.container').node().getBoundingClientRect().width;
+            this.setState({settings},() => this.showData())
+        },1000)
     }
 
     componentDidUpdate() {
         this.showData();
+    }
+
+    
+
+    getColor = (d,i) => {
+        let region_step = _.filter(this.props.countries, o => o.region == d.region).length;
+        return Color(this.state.colors.find((color) => color.region === d.region).color).lighten((10/region_step*d.regionOrder)/100);
+
+        // return this.state.colors.find((color) => color.region === d.region).color;
     }
 
     showData = () => {
@@ -57,7 +72,7 @@ export class JoyChart extends React.Component {
             .range([this.state.settings.margin.top, this.state.settings.height - this.state.settings.margin.bottom]);
 
         let z = d3.scaleLinear()
-            .domain([0, d3.max(data.series, d => d3.max(d.values.map((d1) => d1.value)))]).nice()
+            .domain([0, d3.max(data.series, d => d3.max(d.values.map((dd) => dd[self.props.selectedMetric])))]).nice()
             .range([0, -this.state.settings.overlap * 4]);
 
         let yAxis = g => g
@@ -101,7 +116,9 @@ export class JoyChart extends React.Component {
                 return x(data.dates[i])
             })
             .y0(0)
-            .y1((d,i) => z(d.value));
+            .y1((d,i) => { 
+                return z(d[self.props.selectedMetric] == null ? 0 : d[self.props.selectedMetric]);
+            });
 
         let line = area.lineY1();
 
@@ -126,19 +143,28 @@ export class JoyChart extends React.Component {
             .style('font-size','10px');
 
         group.append("path")
-            .attr("fill", (d,i) => { 
-                    return this.state.colors.find((color) => color.region === d.region).color;
+            .attr("fill", (d,i) => {
+                    return this.getColor(d,i);
                 })
             .attr("d", d => { 
                 return area(d.values)
             })
-            .style("opacity", "0.5")
+            .style("opacity", "0.6")
             .on("mouseover", (d,i) => {
                 d3.select('#' + d.iso_code + ' path').style("opacity", "0.9")
             })
             .on("mouseout", (d,i) => {       
-                d3.select('#' + d.iso_code + ' path').style("opacity", "0.5")
+                d3.select('#' + d.iso_code + ' path').style("opacity", "0.6")
             });
+
+        group.append('text')
+            .attr('class','total-value')
+            .attr('fill','#000')
+            .attr('x', this.state.settings.width - this.state.settings.margin.left + 40)
+            .attr('y',0)
+            .attr('width',100)
+            .attr('height',15)
+            .style('font-size','10px');
 
 
         let yTicks = d3.select('#countries').selectAll('.tick');
@@ -149,12 +175,14 @@ export class JoyChart extends React.Component {
             d3.select(dd)
                 .style('color', this.state.colors.find((color) => color.region === data[0].region).color)
                 .on("mouseover", (d) => {
-                    d3.select(dd).style('cursor','pointer').style('color','red')
-                    d3.select('#' + data[0].iso_code + ' path').style("opacity", "0.9")
+                    d3.select(dd).style('cursor','pointer').style('color','red');
+                    d3.select('#' + data[0].iso_code + ' text:last-child').attr('fill','red');
+                    d3.select('#' + data[0].iso_code + ' path').style("opacity", "0.9");
                 })                  
                 .on("mouseout", (d,i) => {
-                    d3.select(dd).style('color', this.state.colors.find((color) => color.region === data[0].region).color)   
-                    d3.select('#' + data[0].iso_code + ' path').style("opacity", "0.5")
+                    d3.select(dd).style('color', this.state.colors.find((color) => color.region === data[0].region).color);
+                    d3.select('#' + data[0].iso_code + ' text:last-child').attr('fill','#000');    
+                    d3.select('#' + data[0].iso_code + ' path').style("opacity", "0.6");
                 });
         })
 
@@ -201,10 +229,16 @@ export class JoyChart extends React.Component {
             d3.selectAll('.value')
                 .attr('fill','#000')
                 .text((d) => {
-                    let checkDate = new Date(x.invert(mouse[0])).toISOString().split('T')[0];
-                    let seriesDate = _.find(d.values, (o) => { return o.date == checkDate })
-                    let value = seriesDate.value
-                    return (seriesDate != undefined && value != undefined) ? Math.round(value) : '--';        
+                    let checkDate = x.invert(mouse[0]).toISOString().split('T')[0];
+                    let seriesDate = _.find(d.values, (o) => { return o.date.split('T')[0] == checkDate })
+                    let value = seriesDate[self.props.selectedMetric]
+                    return (seriesDate != undefined && value != undefined) ? Math.round(value) : '-';        
+                })
+
+            d3.selectAll('.total-value')
+                .attr('fill','#000')
+                .text((d) => {
+                    return d.total_cases  
                 })
             
             d3.select('.current-date-bg')
