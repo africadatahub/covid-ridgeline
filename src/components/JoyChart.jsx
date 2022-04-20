@@ -48,8 +48,6 @@ export class JoyChart extends React.Component {
     getColor = (d,i) => {
         let region_step = _.filter(this.props.countries, o => o.region == d.region).length;
         return Color(this.state.colors.find((color) => color.region === d.region).color).lighten((10/region_step*d.regionOrder)/100);
-
-        // return this.state.colors.find((color) => color.region === d.region).color;
     }
 
     showData = () => {

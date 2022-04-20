@@ -13,8 +13,8 @@ import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 // import Modal from 'react-bootstrap/Modal';
 
-// import Nouislider from "nouislider-react";
-// import "nouislider/distribute/nouislider.css";
+import Nouislider from "nouislider-react";
+import "nouislider/distribute/nouislider.css";
 
 import moment from 'moment';
 
@@ -318,6 +318,10 @@ export class App extends React.Component {
             }, () => this.executeQuery()
         );
     }
+
+    onUpdate = (e) => {
+        console.log(this.state.dates[parseInt(e[0]-1)],this.state.dates[parseInt(e[1]-1)]);
+    }
     
     render() {
         return <> 
@@ -350,7 +354,7 @@ export class App extends React.Component {
                                             <Inject services={[CheckBoxSelection]} />
                                     </MultiSelectComponent>
                                 </Col>
-                                <Col>
+                                <Col xs="auto">
                                     <Form.Select className="control-grey" onChange={this.selectMetric} value={this.state.selectedMetric}>
                                         <option value="new_cases_smoothed">New Cases Smoothed</option>
                                         <option value="new_cases_smoothed_per_million">New Cases Smoothed Per Million</option>
@@ -358,21 +362,26 @@ export class App extends React.Component {
                                     </Form.Select>
                                 </Col>
                                 <Col>
-                                    { (this.state.startDate != null && this.state.endDate != null) ?
-                                    <DateRangePicker
-                                        startDate={moment(this.state.startDate)} 
-                                        startDateId="startDate" 
-                                        endDate={moment(this.state.endDate)} 
-                                        endDateId="endDate" 
-                                        onDatesChange={this.selectDates} 
-                                        focusedInput={this.state.focusedInput} 
-                                        onFocusChange={focusedInput => this.setState({ focusedInput })} 
-                                        startDatePlaceholderText='START'
-                                        endDatePlaceholderText='END'
-                                        small={true}
-                                        isOutsideRange={() => false}
-                                        displayFormat='DD/MM/YYYY'
-                                    /> : '' }
+                                    <Nouislider
+                                        instanceRef={instance => {
+                                            if (instance && !this.state.ref) {
+                                            this.setState({ ref: instance });
+                                            }
+                                        }}
+                                        onSlide={this.onUpdate}
+                                        range={{ min: 1, max: this.state.dates.length > 1 ? this.state.dates.length : 10 }}
+                                        step={1}
+                                        start={[0, this.state.dateRange.length]}
+                                        connect={true}
+                                        pips= {{
+                                            mode: 'count',
+                                            values: 6,
+                                            density: 4,
+                                            stepped: true
+                                        }} />
+                                </Col>
+                                <Col>
+                                    
                                 </Col>
                             </Row>
                         </Container>
