@@ -249,9 +249,9 @@ export class JoyChart extends React.Component {
                         return mouse[0];
                     }
                 })
-                .attr('y', mouse[1] - 11)
+                // .attr('y', mouse[1] - 11)
                 .attr('width', d3.select('.current-date').node().getBoundingClientRect().width + 10)
-                .attr('height',  d3.select('.current-date').node().getBoundingClientRect().height)
+                .attr('height',  d3.select('.current-date').node().getBoundingClientRect().height + 3)
 
             d3.select('.current-date') 
                 .attr('x', () => {
@@ -262,7 +262,7 @@ export class JoyChart extends React.Component {
                         return mouse[0] + 5;
                     }
                 })                
-                .attr('y', mouse[1])
+                // .attr('y', mouse[1])
                 .text((d) => {
                     let checkDate = new Date(x.invert(mouse[0])).toISOString().split('T')[0];
                     return checkDate;
