@@ -54,10 +54,7 @@ export class App extends React.Component {
 
             selectedMetric: 'new_cases_smoothed',
 
-            data: {
-                new_cases_smoothed: [],
-                new_deaths: []
-            },
+            data: [],
             currentData: []
         }
     }
@@ -173,116 +170,105 @@ export class App extends React.Component {
 
     fetchData = () => {
 
-        if(this.state.data[this.state.selectedMetric].length == 0) {
+        console.log('Fetching data...');
+        this.setState({ loadingText: 'Fetching data...' });
 
-            console.log('Fetching African data for ' + this.state.selectedMetric + '...');
-            this.setState({ loadingText: 'Fetching African data for ' + this.state.selectedMetric + '...' });
+        axios.get(this.state.api.baseUrl + 'action/datastore_search_sql?sql=SELECT%20iso_code%2Cdate%2Ctotal_cases%2Ctotal_deaths%2Cnew_cases_smoothed%2Cnew_deaths%20FROM%20"' + this.state.api.countryData + '"',
+            { headers: {
+                authorization: process.env.REACT_API_KEY
+            }
+        }).then((response) => {
 
-            axios.get(this.state.api.baseUrl + 'action/datastore_search_sql?sql=SELECT%20iso_code%2Cdate%2Ctotal_cases%2Ctotal_deaths%2C' + this.state.selectedMetric + '%20FROM%20"' + this.state.api.countryData + '"',
-                { headers: {
-                    authorization: process.env.REACT_API_KEY
-                }
-            }).then((response) => {
+            console.log('Got the data...');
+            this.setState({ loadingText: 'Got the data...' });
 
-                console.log('Got the data...');
-                this.setState({ loadingText: 'Got the data...' });
+            // Set up an array with all the countries
 
-                // Set up an array with all the countries
+            let allCountries = [];
 
-                let allCountries = [];
+            this.state.countries.forEach((country) => {
+                allCountries.push(country);
+            })
 
-                this.state.countries.forEach((country) => {
-                    allCountries.push(country);
-                })
-
-                let finalCountriesData = allCountries;
+            let finalCountriesData = allCountries;
 
 
-                // Add an empty values array where we will story each day's data.
+            // Add an empty values array where we will story each day's data.
 
-                finalCountriesData.forEach((country) => {
-                    country.values = [];
-                    country.allValues = []; // We added this to keep access to the complete dataset
-                })
+            finalCountriesData.forEach((country) => {
+                country.values = [];
+                country.allValues = []; // We added this to keep access to the complete dataset
+            })
 
-                console.log('Sorting data...');
-                this.setState({ loadingText: 'Sorting data...' });
+            console.log('Sorting data...');
+            this.setState({ loadingText: 'Sorting data...' });
 
-                // loop through the incoming records and add it to the related country's new values array.
+            // loop through the incoming records and add it to the related country's new values array.
+            
+            response.data.result.records.forEach((data) => {
+
+                let iso_code = data.iso_code;
+
+                let related_country_index = _.findIndex(finalCountriesData, o => { 
+                    return o.iso_code == iso_code
+                });
                 
-                    response.data.result.records.forEach((data) => {
-
-                        let iso_code = data.iso_code;
-
-                        let related_country_index = _.findIndex(finalCountriesData, o => { 
-                            return o.iso_code == iso_code
-                        });
-                        
-                        finalCountriesData[related_country_index].allValues.push(data);
-
-                    })
-
-                    // Loop through each country and fill in missing days. And also sort it.
-
-                    console.log('Finding gaps in the data...');
-                    this.setState({ loadingText: 'Finding gaps in the data...' });
-
-                    finalCountriesData.forEach((country) => {
-
-                        let sortedFilledArray = [];
-
-                        for (let index = 0; index < this.state.dates.length; index++) {
-                            
-                            if(_.find(country.allValues, o => o.date == this.state.dates[index]) == undefined) {
-
-                                country.allValues.push({
-                                    iso_code: country.iso_code,
-                                    date: this.state.dates[index],
-                                    total_cases: '0',
-                                    total_deaths: '0',
-                                    [this.state.selectedMetric]: '0'
-                                })
-                            }
-                            
-                        }
-
-                        sortedFilledArray = _.sortBy(country.allValues, (o) => { return o.date; } );
-                        country.allValues = sortedFilledArray;
-                        country.values = sortedFilledArray;
-                        
-                    })
-
-                    /* Final data looks like: [
-                        {
-                            iso_code: 'ZAF',
-                            location: 'South Africa',
-                            region: 'Southern Africa',
-                            order: 0,
-                            values: [
-                                {
-                                    date: '2020-02-07',
-                                    new_cases: 20,
-                                    total_cases: 20
-                                }
-                            ]
-                        }
-                    ] */
-
-                    let data = {...this.state.data}
-                    data[this.state.selectedMetric] = finalCountriesData;
-
-                    this.setState({
-                        data: data,
-                    }, () => this.executeQuery())
+                finalCountriesData[related_country_index].allValues.push(data);
 
             })
-        } else {
-            console.log('No need to fetch. We already have it...');
-            this.setState({ loadingText: 'No need to fetch. We already have it...' });
-            this.executeQuery();
-        } 
 
+            // Loop through each country and fill in missing days. And also sort it.
 
+            console.log('Finding gaps in the data...');
+            this.setState({ loadingText: 'Finding gaps in the data...' });
+
+            finalCountriesData.forEach((country) => {
+
+                let sortedFilledArray = [];
+
+                for (let index = 0; index < this.state.dates.length; index++) {
+                    
+                    if(_.find(country.allValues, o => o.date == this.state.dates[index]) == undefined) {
+
+                        country.allValues.push({
+                            iso_code: country.iso_code,
+                            date: this.state.dates[index],
+                            total_cases: '0',
+                            total_deaths: '0',
+                            new_cases_smoothed: '0',
+                            new_deaths: '0'
+                        })
+                    }
+                    
+                }
+
+                sortedFilledArray = _.sortBy(country.allValues, (o) => { return o.date; } );
+                country.allValues = sortedFilledArray;
+                country.values = sortedFilledArray;
+                
+            })
+
+            /* Final data looks like: [
+                {
+                    iso_code: 'ZAF',
+                    location: 'South Africa',
+                    region: 'Southern Africa',
+                    order: 0,
+                    values: [
+                        {
+                            date: '2020-02-07',
+                            new_cases: 20,
+                            total_cases: 20
+                        }
+                    ]
+                }
+            ] */
+
+            this.setState({
+                data: finalCountriesData,
+            }, () => this.executeQuery())
+
+        })
     }
 
     executeQuery = () => {
@@ -291,7 +277,7 @@ export class App extends React.Component {
             loadingText: 'Flying over landscape...' 
         });
 
-        let filteredData = _.filter(this.state.data[this.state.selectedMetric], d => this.state.selectedCountries.indexOf(d.iso_code) > -1 );
+        let filteredData = _.filter(this.state.data, d => this.state.selectedCountries.indexOf(d.iso_code) > -1 );
 
         filteredData.forEach(country => {
             let filteredValues = _.filter(country.allValues, d => this.state.dateRange.indexOf(d.date) > -1 );
@@ -326,7 +312,7 @@ export class App extends React.Component {
         this.setState({
                 loading: true,
                 selectedMetric: e.target.value
-            }, () => this.fetchData()
+            }, () => this.executeQuery()
         );
     }
 
