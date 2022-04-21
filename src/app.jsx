@@ -21,10 +21,6 @@ import moment from 'moment';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faCalendarDay, faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
 
-import 'react-dates/initialize';
-import { DateRangePicker } from 'react-dates';
-import 'react-dates/lib/css/_datepicker.css';
-
 import { CheckBoxSelection, Inject, MultiSelectComponent } from '@syncfusion/ej2-react-dropdowns';
 
 import { JoyChart } from './components/JoyChart';
@@ -47,14 +43,9 @@ export class App extends React.Component {
             loadingText: 'Loading...',
 
             dates: [],
-            date_range: [],
+            dateRange: [],
             startDate: null,
             endDate: null,
-            minDate: null,
-            maxDate: null,
-
-            focusedInput: null,
-            focused: false,
 
             regions: [],
             countries: [],
@@ -63,12 +54,17 @@ export class App extends React.Component {
 
             selectedMetric: 'new_cases_smoothed',
 
-            data: []
+            data: {
+                new_cases_smoothed: [],
+                new_deaths: []
+            },
+            currentData: []
         }
     }
 
     componentDidMount() {
 
+        console.log('Loading African regions list...');
         this.setState({ loadingText: 'Loading African regions list...' });
 
         Promise.all([
@@ -136,6 +132,7 @@ export class App extends React.Component {
 
             countries = _.sortBy(countries, 'order');
 
+            console.log('Calculating pandemic dates...');
             this.setState({ loadingText: 'Calculating pandemic dates...' });
             
             // ALL DATES
@@ -163,11 +160,9 @@ export class App extends React.Component {
 
                     dates: dates,
                     dateRange: dates,
-                    startDate: dates[0],
-                    endDate: dates[dates.length - 1],
-                    minDate: dates[0],
-                    maxDate: dates[dates.length - 1]
-                }, () => this.executeQuery())
+                    startDate: 0,
+                    endDate: dates.length - 1
+                }, () => this.fetchData())
 
             })
         
@@ -176,232 +171,257 @@ export class App extends React.Component {
 
     }
 
+    fetchData = () => {
 
-    executeQuery = () => {
+        if(this.state.data[this.state.selectedMetric].length == 0) {
 
-        this.setState({ loadingText: 'Fetching countries data...' });
+            console.log('Fetching African data for ' + this.state.selectedMetric + '...');
+            this.setState({ loadingText: 'Fetching African data for ' + this.state.selectedMetric + '...' });
 
-        // QUERY
-        // Execute the main query based on selections
+            axios.get(this.state.api.baseUrl + 'action/datastore_search_sql?sql=SELECT%20iso_code%2Cdate%2Ctotal_cases%2Ctotal_deaths%2C' + this.state.selectedMetric + '%20FROM%20"' + this.state.api.countryData + '"',
+                { headers: {
+                    authorization: process.env.REACT_API_KEY
+                }
+            }).then((response) => {
 
-        axios.get(this.state.api.baseUrl + 'action/datastore_search_sql?sql=SELECT%20iso_code%2Cdate%2Ctotal_cases%2Ctotal_deaths%2C' + this.state.selectedMetric + '%20FROM%20"' + this.state.api.countryData + '"%20WHERE%20date%20BETWEEN%20%27' + moment(this.state.startDate).format('YYYY-MM-DD') + '%27%20AND%20%27' + moment(this.state.endDate).format('YYYY-MM-DD') + '%27%20AND%20iso_code%20IN%20%28%27' + _.join(this.state.selectedCountries, '%27%2C%27') + '%27%29',
-        { headers: {
-            authorization: process.env.REACT_API_KEY
-        }
-        }).then((response) => {
-            
-            // Set up an array with all the countries
+                console.log('Got the data...');
+                this.setState({ loadingText: 'Got the data...' });
 
-            let selectedCountries = [];
+                // Set up an array with all the countries
 
-            this.state.selectedCountries.forEach((iso_code) => {
-                selectedCountries.push(_.find(this.state.countries, (country) => country.iso_code == iso_code));
-            })
+                let allCountries = [];
 
-            let finalCountriesData = selectedCountries;
-
-
-            // Add an empty values array where we will story each day's data.
-
-            finalCountriesData.forEach((country) => {
-                country.values = [];
-            })
-
-            this.setState({ loadingText: 'Grouping countries...' });
-
-            // loop through the incoming records and add it to the related country's new values array.
-            
-                response.data.result.records.forEach((data) => {
-
-                    let iso_code = data.iso_code;
-
-                    let related_country_index = _.findIndex(finalCountriesData, o => { 
-                        return o.iso_code == iso_code
-                    });
-                    
-                    finalCountriesData[related_country_index].values.push(data);
-
+                this.state.countries.forEach((country) => {
+                    allCountries.push(country);
                 })
 
-                let start_date_index = _.findIndex(this.state.dates, d => d == this.state.startDate);
-                let end_date_index = _.findIndex(this.state.dates, d => d == this.state.endDate);
+                let finalCountriesData = allCountries;
 
-                // Loop through each country and fill in missing days. And also sort it.
 
-                this.setState({ loadingText: 'Filling in missing dates...' });
+                // Add an empty values array where we will story each day's data.
 
                 finalCountriesData.forEach((country) => {
-
-                    let sortedFilledArray = [];
-
-                    for (let index = start_date_index; index < end_date_index; index++) {
-                        
-                        if(_.find(country.values, o => o.date == this.state.dates[index]) == undefined) {
-
-                            country.values.push({
-                                iso_code: country.iso_code,
-                                date: this.state.dates[index],
-                                total_cases: '0',
-                                total_deaths: '0',
-                                [this.state.selectedMetric]: '0'
-                            })
-                        }
-                        
-                    }
-
-                    sortedFilledArray = _.sortBy(country.values, (o) => { return o.date; } );
-                    country.values = sortedFilledArray;
-
-                    
+                    country.values = [];
+                    country.allValues = []; // We added this to keep access to the complete dataset
                 })
 
-                /* Final data looks like: [
-                    {
-                        iso_code: 'ZAF',
-                        location: 'South Africa',
-                        region: 'Southern Africa',
-                        order: 0,
-                        values: [
-                            {
-                                date: '2020-02-07',
-                                new_cases: 20,
-                                total_cases: 20
+                console.log('Sorting data...');
+                this.setState({ loadingText: 'Sorting data...' });
+
+                // loop through the incoming records and add it to the related country's new values array.
+                
+                    response.data.result.records.forEach((data) => {
+
+                        let iso_code = data.iso_code;
+
+                        let related_country_index = _.findIndex(finalCountriesData, o => { 
+                            return o.iso_code == iso_code
+                        });
+                        
+                        finalCountriesData[related_country_index].allValues.push(data);
+
+                    })
+
+                    // Loop through each country and fill in missing days. And also sort it.
+
+                    console.log('Finding gaps in the data...');
+                    this.setState({ loadingText: 'Finding gaps in the data...' });
+
+                    finalCountriesData.forEach((country) => {
+
+                        let sortedFilledArray = [];
+
+                        for (let index = 0; index < this.state.dates.length; index++) {
+                            
+                            if(_.find(country.allValues, o => o.date == this.state.dates[index]) == undefined) {
+
+                                country.allValues.push({
+                                    iso_code: country.iso_code,
+                                    date: this.state.dates[index],
+                                    total_cases: '0',
+                                    total_deaths: '0',
+                                    [this.state.selectedMetric]: '0'
+                                })
                             }
-                        ]
-                    }
-                ] */
+                            
+                        }
 
-                this.setState({ loadingText: 'Drawing moutain ranges...' });
+                        sortedFilledArray = _.sortBy(country.allValues, (o) => { return o.date; } );
+                        country.allValues = sortedFilledArray;
+                        country.values = sortedFilledArray;
+                        
+                    })
+
+                    /* Final data looks like: [
+                        {
+                            iso_code: 'ZAF',
+                            location: 'South Africa',
+                            region: 'Southern Africa',
+                            order: 0,
+                            values: [
+                                {
+                                    date: '2020-02-07',
+                                    new_cases: 20,
+                                    total_cases: 20
+                                }
+                            ]
+                        }
+                    ] */
+
+                    let data = {...this.state.data}
+                    data[this.state.selectedMetric] = finalCountriesData;
+
+                    this.setState({
+                        data: data,
+                    }, () => this.executeQuery())
+
+            })
+        } else {
+            console.log('No need to fetch. We already have it...');
+            this.setState({ loadingText: 'No need to fetch. We already have it...' });
+            this.executeQuery();
+        } 
 
 
-                this.setState({
-                    data: finalCountriesData,
-                    loading: false,
-                    loadingText: ''
-                }) 
-            
-        
+    }
+
+    executeQuery = () => {
+        console.log('Flying over landscape...');
+        this.setState({ 
+            loadingText: 'Flying over landscape...' 
+        });
+
+        let filteredData = _.filter(this.state.data[this.state.selectedMetric], d => this.state.selectedCountries.indexOf(d.iso_code) > -1 );
+
+        filteredData.forEach(country => {
+            let filteredValues = _.filter(country.allValues, d => this.state.dateRange.indexOf(d.date) > -1 );
+            country.values = filteredValues; 
         })
-             
+
+
+        this.setState({
+            currentData: filteredData,
+            loading: false
+        });
+
+
     }
     
 
     filterByCountry = (e) => {
 
-        let selectedCountries = e.value;
+        if(e.isInteracted) {
+            let selectedCountries = e.value;
 
-        this.setState({
-                loading: true,
-                selectedCountries: selectedCountries,
-            }, () => this.executeQuery()
-        );
-    }
-
-    selectDates = ({ startDate, endDate }) => {
-
-        let date_range = _.filter(this.state.dates, (d) => { return moment(d) >= moment(startDate) && moment(d) <= moment(endDate) });
-        
-        this.setState({
-                loading: true,
-                dateRange: date_range,
-                startDate: date_range[0],
-                endDate: date_range[date_range.length-1]
-            }, () => this.executeQuery()
-        );
- 
+            this.setState({
+                    loading: true,
+                    selectedCountries: selectedCountries,
+                }, () => this.executeQuery()
+            );
+        }
     }
 
     selectMetric = (e) => {
+
         this.setState({
                 loading: true,
                 selectedMetric: e.target.value
-            }, () => this.executeQuery()
+            }, () => this.fetchData()
         );
     }
 
-    onUpdate = (e) => {
-        console.log(this.state.dates[parseInt(e[0]-1)],this.state.dates[parseInt(e[1]-1)]);
+    onSlide = (e) => {
+
+        this.setState({
+            startDate: parseInt(e[0]),
+            endDate: parseInt(e[1])
+        })
+
+    }
+
+    onEnd = (e) => {
+
+        let date_range = _.filter(this.state.dates, (d,i) => { return i >= parseInt(e[0]) && i <= parseInt(e[1]) });
+
+        this.setState({
+                loading: true,
+                startDate: parseInt(e[0]),
+                endDate: parseInt(e[1]),
+                dateRange: date_range,
+            }, () => this.executeQuery()
+        )
     }
     
     render() {
-        return <> 
-            { this.state.loading ? 
-                <>
+        return  <>
+                <header>
+                    <Container className="py-4">
+                        <Row>
+                            <Col>
+                                <MultiSelectComponent 
+                                    id="mtselement"
+                                    popupHeight='600px'
+                                    fields={{ groupBy: 'region', text: 'label', value: 'value' }}
+                                    dataSource={this.state.countries}
+                                    value={this.state.selectedCountries}
+                                    placeholder="Select Countries"
+                                    mode="CheckBox"
+                                    enableGroupCheckBox="true"
+                                    allowFiltering="true"
+                                    showSelectAll="true"
+                                    filterBarPlaceholder="Search Countries"
+                                    change={this.filterByCountry}>
+                                        <Inject services={[CheckBoxSelection]} />
+                                </MultiSelectComponent>
+                            </Col>
+                            <Col xs="auto">
+                                <Form.Select className="control-grey" onChange={this.selectMetric} value={this.state.selectedMetric}>
+                                    <option value="new_cases_smoothed">New Cases Smoothed</option>
+                                    <option value="new_deaths">New Deaths</option>
+                                </Form.Select>
+                            </Col>
+                            <Col className="px-4">
+                                <Nouislider
+                                    onSlide={this.onSlide}
+                                    onEnd={this.onEnd}
+                                    range={{ min: 0, max: this.state.dates.length - 1 }}
+                                    step={1}
+                                    start={[ 0, this.state.dates.length - 1 ]}
+                                    connect={true}
+                                    pips= {{
+                                        mode: 'count',
+                                        values: 6,
+                                        density: 4,
+                                        stepped: true
+                                    }} />
+                            </Col>
+                            <Col xs="auto">
+                                <h4 className="pt-2" style={{width: '200px'}}>{ moment(this.state.dates[this.state.startDate]).format('DD/MM/YY') } - { moment(this.state.dates[this.state.endDate]).format('DD/MM/YY') }</h4>
+                            </Col>
+                        </Row>
+                    </Container>
+                </header>
+
+                { this.state.loading ? 
                     <div className="position-absolute top-50 start-50 translate-middle text-center">
                         <Spinner animation="grow" />
-                        <p className="mt-4">{ this.state.loadingText }</p>
+                        <h3 className="mt-4">{ this.state.loadingText }</h3>
                         <Container></Container>
                     </div>
-                </> :
-                <>
-                    <header>
-                        <Container className="py-4">
-                            <Row>
-                                <Col>
-                                    <MultiSelectComponent 
-                                        id="mtselement"
-                                        popupHeight='600px'
-                                        fields={{ groupBy: 'region', text: 'label', value: 'value' }}
-                                        dataSource={this.state.countries}
-                                        value={this.state.selectedCountries}
-                                        placeholder="Select Countries"
-                                        mode="CheckBox"
-                                        enableGroupCheckBox="true"
-                                        allowFiltering="true"
-                                        showSelectAll="true"
-                                        filterBarPlaceholder="Search Countries"
-                                        change={this.filterByCountry}>
-                                            <Inject services={[CheckBoxSelection]} />
-                                    </MultiSelectComponent>
-                                </Col>
-                                <Col xs="auto">
-                                    <Form.Select className="control-grey" onChange={this.selectMetric} value={this.state.selectedMetric}>
-                                        <option value="new_cases_smoothed">New Cases Smoothed</option>
-                                        <option value="new_cases_smoothed_per_million">New Cases Smoothed Per Million</option>
-                                        <option value="new_deaths">New Deaths</option>
-                                    </Form.Select>
-                                </Col>
-                                <Col>
-                                    <Nouislider
-                                        instanceRef={instance => {
-                                            if (instance && !this.state.ref) {
-                                            this.setState({ ref: instance });
-                                            }
-                                        }}
-                                        onSlide={this.onUpdate}
-                                        range={{ min: 1, max: this.state.dates.length > 1 ? this.state.dates.length : 10 }}
-                                        step={1}
-                                        start={[0, this.state.dateRange.length]}
-                                        connect={true}
-                                        pips= {{
-                                            mode: 'count',
-                                            values: 6,
-                                            density: 4,
-                                            stepped: true
-                                        }} />
-                                </Col>
-                                <Col>
-                                    
-                                </Col>
-                            </Row>
-                        </Container>
-                    </header>
+                : 
                     <Container className="mt-4">
-                        { !this.state.loading ?
-                            <Card className="mt-4">
-                                <JoyChart 
-                                    data={ this.state.data }
-                                    countries={ this.state.countries }
-                                    dates={ this.state.dateRange }
-                                    selectedMetric= { this.state.selectedMetric }
-                                />
-                            </Card>
-                            : '' 
-                        }
+                        <Card className="mt-4">
+                            <JoyChart 
+                                data={ this.state.currentData }
+                                countries={ this.state.countries }
+                                dates={ this.state.dateRange }
+                                selectedMetric= { this.state.selectedMetric }
+                            />
+                        </Card>
                     </Container>
-                </>
-            }
-        </>
+                }
+            </>
+          
     }
 
 }

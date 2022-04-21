@@ -26,7 +26,8 @@ export class JoyChart extends React.Component {
                     left: 100
                 },
                 overlap: 6
-            }
+            },
+            xAxis: null
         }
     }
 
@@ -36,11 +37,11 @@ export class JoyChart extends React.Component {
             var settings = {...this.state.settings}
             settings.width = d3.select('.container').node().getBoundingClientRect().width;
             this.setState({settings},() => this.showData())
-        },1000)
+        }, 1000)
     }
 
     componentDidUpdate() {
-        this.showData();
+        this.updateData();
     }
 
     
@@ -59,7 +60,7 @@ export class JoyChart extends React.Component {
             series: this.props.data
         };
 
-        let container = d3.select('#JoyChart').html('').attr('height', this.state.settings.height).attr('width', this.state.settings.width);
+        let container = d3.select('#JoyChart').attr('height', this.state.settings.height).attr('width', this.state.settings.width);
         
         let x = d3.scaleTime()
             .domain(d3.extent(data.dates))
@@ -283,7 +284,7 @@ export class JoyChart extends React.Component {
     }
 
     updateData = (incomingData, countries) => {
-
+        
         
     }
 

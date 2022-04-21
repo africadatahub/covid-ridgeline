@@ -26,21 +26,29 @@ $theme-colors: (
 @import "../node_modules/@syncfusion/ej2-inputs/styles/bootstrap5.css";
 @import "../node_modules/@syncfusion/ej2-react-dropdowns/styles/bootstrap5.css";
 
-body {
-    background: #ECEFF0;
+html {
+    font-size: 12px;
 }
+
+body{
+    font-family: 'Work Sans', sans-serif;
+    background: #eceff0;
+    color: $primary;
+    padding-bottom: 2em;
+}
+
 
 header {
     background: #f8f8f8 !important;
 }
 
+
 .form-select {
-    font-size: 0.8em;
     height: 32px;
 }
 
 .control-grey {
-    background: $control-grey  !important;
+    background-color: $control-grey  !important;
 }
 
 .e-multi-select-wrapper {
