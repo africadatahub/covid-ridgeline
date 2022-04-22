@@ -24,6 +24,7 @@ import moment from 'moment';
 import { CheckBoxSelection, Inject, MultiSelectComponent } from '@syncfusion/ej2-react-dropdowns';
 
 import { JoyChart } from './components/JoyChart';
+// import { Test } from './components/Test';
 
 import './app.scss';
 // import { select } from 'd3';
@@ -44,6 +45,8 @@ export class App extends React.Component {
 
             dates: [],
             dateRange: [],
+            displayStartDate: null,
+            displayEndDate: null,
             startDate: null,
             endDate: null,
 
@@ -192,7 +195,6 @@ export class App extends React.Component {
 
             let finalCountriesData = allCountries;
 
-
             // Add an empty values array where we will story each day's data.
 
             finalCountriesData.forEach((country) => {
@@ -272,6 +274,7 @@ export class App extends React.Component {
     }
 
     executeQuery = () => {
+
         console.log('Flying over landscape...');
         this.setState({ 
             loadingText: 'Flying over landscape...' 
@@ -283,7 +286,6 @@ export class App extends React.Component {
             let filteredValues = _.filter(country.allValues, d => this.state.dateRange.indexOf(d.date) > -1 );
             country.values = filteredValues; 
         })
-
 
         this.setState({
             currentData: filteredData,
@@ -319,8 +321,8 @@ export class App extends React.Component {
     onSlide = (e) => {
 
         this.setState({
-            startDate: parseInt(e[0]),
-            endDate: parseInt(e[1])
+            displayStartDate: parseInt(e[0]),
+            displayEndDate: parseInt(e[1])
         })
 
     }
@@ -374,6 +376,7 @@ export class App extends React.Component {
                                     step={1}
                                     start={[ 0, this.state.dates.length - 1 ]}
                                     connect={true}
+                                    // behaviour='drag'
                                     pips= {{
                                         mode: 'count',
                                         values: 6,
@@ -382,30 +385,35 @@ export class App extends React.Component {
                                     }} />
                             </Col>
                             <Col xs="auto">
-                                <h4 className="pt-2" style={{width: '200px'}}>{ moment(this.state.dates[this.state.startDate]).format('DD/MM/YY') } - { moment(this.state.dates[this.state.endDate]).format('DD/MM/YY') }</h4>
+                                <h4 className="pt-2" style={{width: '200px'}}>{ moment(this.state.dates[this.state.displayStartDate]).format('DD/MM/YY') } - { moment(this.state.dates[this.state.displayEndDate]).format('DD/MM/YY') }</h4>
                             </Col>
                         </Row>
                     </Container>
                 </header>
 
-                { this.state.loading ? 
+                <div className={this.state.loading ? 'd-block' : 'd-none'}>
                     <div className="position-absolute top-50 start-50 translate-middle text-center">
                         <Spinner animation="grow" />
                         <h3 className="mt-4">{ this.state.loadingText }</h3>
                         <Container></Container>
                     </div>
-                : 
-                    <Container className="mt-4">
-                        <Card className="mt-4">
-                            <JoyChart 
-                                data={ this.state.currentData }
-                                countries={ this.state.countries }
-                                dates={ this.state.dateRange }
-                                selectedMetric= { this.state.selectedMetric }
-                            />
-                        </Card>
-                    </Container>
-                }
+                </div>
+                { this.state.currentData.length > 0 ?
+                <>
+                    <div className={this.state.loading ? 'd-none' : 'd-block'}>
+                        <Container className="mt-4">
+                            <Card className="mt-4">
+                                <JoyChart 
+                                    data={ this.state.currentData }
+                                    countries={ this.state.countries }
+                                    dates={ this.state.dateRange }
+                                    selectedMetric={ this.state.selectedMetric }
+                                />
+                            </Card>
+                        </Container>
+                    </div>
+                </>
+                : '' }
             </>
           
     }
