@@ -14,7 +14,7 @@ import Spinner from 'react-bootstrap/Spinner';
 // import Modal from 'react-bootstrap/Modal';
 
 import Nouislider from "nouislider-react";
-import "nouislider/distribute/nouislider.css";
+import "nouislider/dist/nouislider.css";
 
 import moment from 'moment';
 
