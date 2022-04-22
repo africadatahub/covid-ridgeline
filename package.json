@@ -17,6 +17,7 @@
     "color": "^4.2.3",
     "copyfiles": "^2.4.1",
     "d3": "^7.3.0",
+    "d3-fetch": "^3.0.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.2",
     "nouislider-react": "^3.4.1",
