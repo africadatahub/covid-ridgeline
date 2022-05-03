@@ -25,8 +25,6 @@ import moment from 'moment';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faCalendarDay, faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
 
-import { CheckBoxSelection, Inject, MultiSelectComponent } from '@syncfusion/ej2-react-dropdowns';
-
 import { JoyChart } from './components/JoyChart';
 
 import './app.scss';
