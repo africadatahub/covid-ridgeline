@@ -47,6 +47,44 @@ header {
     height: 32px;
 }
 
+.dropdown-menu {
+    height: 400px;
+    overflow-y: scroll;
+    z-index: 2000 !important;
+}
+
+.country-select button {
+    height: 32px;
+    border: 1px solid #ced4da;
+}
+
+.country-select input {
+    position: relative;
+    top: -5px;
+}
+
+.custom-checkbox {
+    width: 1em;
+    height: 1em;
+    border-radius: 2px;
+    border: 1px solid #999;
+    position: relative;
+    top: -3px;
+}
+
+.custom-checkbox-checked {
+}
+
+.custom-checkbox-checked::after {
+    content: '✓';
+    color: #666;
+    position: absolute;
+    top: -8px;
+    font-weight: bold;
+    font-size: 1.4em;
+    
+}
+
 .control-grey {
     background-color: $control-grey  !important;
 }
