@@ -170,8 +170,6 @@ export class App extends React.Component {
                 location: 'Southern Africa'
             })
 
-            
-
             console.log('Calculating pandemic dates...');
             this.setState({ loadingText: 'Calculating pandemic dates...' });
             
@@ -208,7 +206,6 @@ export class App extends React.Component {
         
         })
 
-
     }
 
     fetchData = () => {
@@ -225,9 +222,6 @@ export class App extends React.Component {
             console.log('Got the data...');
             this.setState({ loadingText: 'Got the data...' });
 
-
-            console.log(response);
-
             // Set up an array with all the countries
 
             let allCountries = [];
@@ -237,7 +231,6 @@ export class App extends React.Component {
             })
 
             let finalCountriesData = allCountries;
-
 
             // Add an empty values array where we will story each day's data.
 
@@ -338,10 +331,7 @@ export class App extends React.Component {
             loading: false
         });
 
-
     }
-
-   
 
     filterByCountry = (e) => {
 
@@ -364,7 +354,6 @@ export class App extends React.Component {
             selectedCountries: selectedCountries,
             }, () => this.executeQuery()
         );
-
         
     }
 
@@ -467,13 +456,14 @@ export class App extends React.Component {
                     </Container>
                 </header>
 
-                { this.state.loading ? 
+                <div className={this.state.loading ? 'd-block' : 'd-none'}>
                     <div className="position-absolute top-50 start-50 translate-middle text-center">
                         <Spinner animation="grow" />
                         <h3 className="mt-4">{ this.state.loadingText }</h3>
                         <Container></Container>
                     </div>
-                : 
+                </div>
+                <div className={this.state.loading ? 'd-none' : 'd-block'}>
                     <Container className="mt-4">
                         <Card className="mt-4">
                             <JoyChart 
@@ -484,7 +474,7 @@ export class App extends React.Component {
                             />
                         </Card>
                     </Container>
-                }
+                </div>
             </>
           
     }
@@ -492,5 +482,5 @@ export class App extends React.Component {
 }
 
 const container = document.getElementsByClassName('app')[0];
-const root = createRoot(container); // createRoot(container!) if you use TypeScript
+const root = createRoot(container);
 root.render(<App />);
