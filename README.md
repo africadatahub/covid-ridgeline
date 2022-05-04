@@ -1,1 +1,1 @@
-# skunkworx
+# Bird's-Eye View of the Covid pandemic in Africa
