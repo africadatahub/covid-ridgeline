@@ -129,11 +129,15 @@ export class JoyChart extends React.Component {
                 return z((d[self.props.selectedMetric] == null || isNaN(d[self.props.selectedMetric])) ? 0 : d[self.props.selectedMetric]);
             });
 
-        let chart = d3.select('#chart').selectAll("path").data(data.series);
+        let chart = d3.select('#chart').selectAll("g").data(data.series);
 
         setTimeout(() => {
-            chart.enter().append('svg:path')
-                .attr("id", d => d.iso_code)
+            
+            let g = chart.enter().append('g')
+                .attr("id", d => d.iso_code);
+
+
+            g.append('path')
                 .attr("fill", (d,i) => {
                     return this.getColor(d,i);
                 })
@@ -143,9 +147,21 @@ export class JoyChart extends React.Component {
                 .attr("transform", d => {
                     return `translate(0,${y(d) + 1})`
                 })
-                .style("opacity", "0.6");
-            
-            chart.attr("d", d => {
+                .style("opacity", "0.6")
+
+            g.append('text')
+                .attr('class','value')
+                .attr('fill','#000')
+                .attr('x', this.state.settings.margin.left)
+                .attr("transform", d => {
+                    return `translate(0,${y(d) + 1})`
+                })
+                .attr('width',100)
+                .attr('height',15)
+                .style('font-size','10px');
+
+            chart.select('path')
+                .attr("d", d => {
                     return area(d.values)
                 })
                 .attr("id", d => d.iso_code)
@@ -153,13 +169,26 @@ export class JoyChart extends React.Component {
                     return `translate(0,${y(d) + 1})`
                 })
                 .attr("fill", (d,i) => {
-                    return this.getColor(d,i);
+                    return this.getColor(d,i)
                 })
+                .style("opacity", "0.6")
+
+            chart.select('.value')
+                .attr('x', this.state.settings.margin.left)
+                .attr("transform", d => {
+                    return `translate(0,${y(d) + 1})`
+                })
+                
 
             chart.exit()
-            .transition()
-            .style("opacity", "0")
-            .remove();
+                .transition()
+                .style("opacity", "0")
+                .remove();
+
+         
+                
+
+
 
         }, 200);
       
@@ -175,12 +204,12 @@ export class JoyChart extends React.Component {
                 .on("mouseover", (d) => {
                     d3.select(dd).style('cursor','pointer').style('color','red');
                     d3.select('#' + data[0].iso_code + ' text:last-child').attr('fill','red');
-                    d3.select('#' + data[0].iso_code).style("opacity", "0.9");
+                    d3.select('#' + data[0].iso_code + ' path').style("opacity", "0.9");
                 })                  
                 .on("mouseout", (d,i) => {
                     d3.select(dd).style('color', this.state.colors.find((color) => color.region === data[0].region).color);
                     d3.select('#' + data[0].iso_code + ' text:last-child').attr('fill','#000');    
-                    d3.select('#' + data[0].iso_code).style("opacity", "0.6");
+                    d3.select('#' + data[0].iso_code + ' path').style("opacity", "0.6");
                 });
         })
 
