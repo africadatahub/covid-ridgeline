@@ -27,7 +27,7 @@ export class JoyChart extends React.Component {
                 },
                 overlap: 6
             },
-            xAxis: null
+            container: null
         }
     }
 
@@ -36,15 +36,30 @@ export class JoyChart extends React.Component {
         setTimeout(() => {
             var settings = {...this.state.settings}
             settings.width = d3.select('.container').node().getBoundingClientRect().width;
-            this.setState({settings},() => this.showData())
+            this.setState({
+                settings,
+                container: d3.select('#JoyChart').attr('height', this.state.settings.height).attr('width', settings.width),
+            },() => this.showData())
         }, 1000)
     }
 
-    componentDidUpdate() {
-        this.updateData();
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        if(this.props.countries.length != prevProps.countries.length ||
+            this.props.data.length != prevProps.data.length ||
+            this.props.dates.length != prevProps.dates.length ||
+            this.props.selectedMetric != prevProps.selectedMetric) {
+            return true;
+        } else {
+            return null;
+        }
     }
 
-    
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (snapshot == true) {
+            console.log('JoyChart::componentDidUpdate');
+            this.showData();
+        }
+    }
 
     getColor = (d,i) => {
         let region_step = _.filter(this.props.countries, o => o.region == d.region).length;
@@ -59,8 +74,6 @@ export class JoyChart extends React.Component {
             dates: this.props.dates.map(d => new Date(d)),
             series: this.props.data
         };
-
-        let container = d3.select('#JoyChart').attr('height', this.state.settings.height).attr('width', this.state.settings.width);
         
         let x = d3.scaleTime()
             .domain(d3.extent(data.dates))
@@ -103,11 +116,24 @@ export class JoyChart extends React.Component {
                 .tickSizeOuter(0))
             .call(g => g.select(".domain").attr('stroke','#999'));
 
-        container.append("g")
-            .call(xAxis);
+        if(d3.select('#xAxis').empty()) {
+            this.state.container.append("g")
+                .call(xAxis);
+        } else {
+            d3.select('#xAxis').call(xAxis);
+        }
 
-        container.append("g")
-            .call(yAxis);
+        if(d3.select('#countries').empty()) {
+            this.state.container.append("g")
+                .call(yAxis);
+        } else {
+            d3.select('#countries').call(yAxis);
+        }
+
+        if(d3.select('#chart').empty()) {
+            this.state.container.append("g")
+                .attr('id','chart');
+        }
 
         let area = d3.area()
             .curve(d3.curveBasis)
@@ -116,54 +142,35 @@ export class JoyChart extends React.Component {
             })
             .y0(0)
             .y1((d,i) => { 
-                return z(d[self.props.selectedMetric] == null ? 0 : d[self.props.selectedMetric]);
+                return z((d[self.props.selectedMetric] == null || isNaN(d[self.props.selectedMetric])) ? 0 : d[self.props.selectedMetric]);
             });
 
-        let line = area.lineY1();
+        let chart = d3.select('#chart').selectAll("path").data(data.series);
 
-        const group = container.append("g")
-            .attr('id','chart')
-            .selectAll("g")
-            .enter()
-            .data(data.series)
-            .join("g")
-            .attr("id", d => d.iso_code)
-            .attr("transform", d => {
-                return `translate(0,${y(d) + 1})`
-            });
-
-        group.append('text')
-            .attr('class','value')
-            .attr('fill','#000')
-            .attr('x', this.state.settings.margin.left)
-            .attr('y',0)
-            .attr('width',100)
-            .attr('height',15)
-            .style('font-size','10px');
-
-        group.append("path")
-            .attr("fill", (d,i) => {
+        setTimeout(() => {
+            chart.enter().append('svg:path')
+                .attr("id", d => d.iso_code)
+                .attr("fill", (d,i) => {
                     return this.getColor(d,i);
                 })
-            .attr("d", d => { 
+                .attr("d", d => {
+                    return area(d.values)
+                })
+                .attr("transform", d => {
+                    return `translate(0,${y(d) + 1})`
+                })
+                .style("opacity", "0.6");
+            
+            chart.attr("d", d => {
                 return area(d.values)
             })
-            .style("opacity", "0.6")
-            .on("mouseover", (d,i) => {
-                d3.select('#' + d.iso_code + ' path').style("opacity", "0.9")
+            .attr("transform", d => {
+                return `translate(0,${y(d) + 1})`
             })
-            .on("mouseout", (d,i) => {       
-                d3.select('#' + d.iso_code + ' path').style("opacity", "0.6")
-            });
 
-        group.append('text')
-            .attr('class','total-value')
-            .attr('fill','#000')
-            .attr('x', this.state.settings.width - this.state.settings.margin.left + 40)
-            .attr('y',0)
-            .attr('width',100)
-            .attr('height',15)
-            .style('font-size','10px');
+            chart.exit().remove();
+        }, 200);
+      
 
 
         let yTicks = d3.select('#countries').selectAll('.tick');
@@ -176,61 +183,63 @@ export class JoyChart extends React.Component {
                 .on("mouseover", (d) => {
                     d3.select(dd).style('cursor','pointer').style('color','red');
                     d3.select('#' + data[0].iso_code + ' text:last-child').attr('fill','red');
-                    d3.select('#' + data[0].iso_code + ' path').style("opacity", "0.9");
+                    d3.select('#' + data[0].iso_code).style("opacity", "0.9");
                 })                  
                 .on("mouseout", (d,i) => {
                     d3.select(dd).style('color', this.state.colors.find((color) => color.region === data[0].region).color);
                     d3.select('#' + data[0].iso_code + ' text:last-child').attr('fill','#000');    
-                    d3.select('#' + data[0].iso_code + ' path').style("opacity", "0.6");
+                    d3.select('#' + data[0].iso_code).style("opacity", "0.6");
                 });
         })
 
         // MOUSEOVER STUFF
 
-        var mouseG = container.append("g")
-            .attr("class", "mouse-over-effects");
+        if(d3.select('.mouse-over-effects').empty()) {
 
-        mouseG.append('rect')
-            .attr('class', 'click-capture')
-            .style('fill', 'transparent')
-            .attr('x', this.state.settings.margin.left)
-            .attr('y', 0)
-            .attr('width', this.state.settings.width - this.state.settings.margin.right - this.state.settings.margin.left)
-            .attr('height', this.state.settings.height);
+            var mouseG = this.state.container.append("g")
+                .attr("class", "mouse-over-effects");
 
-        mouseG.append("path")
-            .attr("class", "mouse-line")
-            .style("stroke", "#333")
-            .style("stroke-width", "1px")
-            .style("opacity", "1")
+            mouseG.append('rect')
+                .attr('class', 'click-capture')
+                .style('fill', 'transparent')
+                .attr('x', this.state.settings.margin.left)
+                .attr('y', 0)
+                .attr('width', this.state.settings.width - this.state.settings.margin.right - this.state.settings.margin.left)
+                .attr('height', this.state.settings.height);
 
-        var dateTag = mouseG.append('g')
-            .attr('class','date-tag')
+            mouseG.append("path")
+                .attr("class", "mouse-line")
+                .style("stroke", "#333")
+                .style("stroke-width", "1px")
+                .style("opacity", "1")
 
-        dateTag.append('rect')
-            .attr('class','current-date-bg')
-            .attr('fill', '#333')
-            .attr('y', 9)
+            var dateTag = mouseG.append('g')
+                .attr('class','date-tag')
 
-        dateTag.append('text')
-            .attr('class','current-date')
-            .text('-')
-            .attr('y', 20)
-            .attr('fill','#fff')
-            .style('font-size','10px')
+            dateTag.append('rect')
+                .attr('class','current-date-bg')
+                .attr('fill', '#333')
+                .attr('y', 9)
+
+            dateTag.append('text')
+                .attr('class','current-date')
+                .text('-')
+                .attr('y', 20)
+                .attr('fill','#fff')
+                .style('font-size','10px')
+        }
 
 
-        const bisectDate = d3.bisector(d=>d.date).right;
         
         d3.select('.click-capture').on('mousemove', (e) => { 
-            var mouse = d3.pointer(e, container.node());
+            var mouse = d3.pointer(e, this.state.container.node());
 
             d3.selectAll('.value')
                 .attr('fill','#000')
                 .text((d) => {
                     let checkDate = x.invert(mouse[0]).toISOString().split('T')[0];
                     let seriesDate = _.find(d.values, (o) => { return o.date.split('T')[0] == checkDate })
-                    let value = seriesDate[self.props.selectedMetric]
+                    let value = seriesDate != undefined ? seriesDate[self.props.selectedMetric] : 0;
                     return (seriesDate != undefined && value != undefined) ? Math.round(value) : '-';        
                 })
 
