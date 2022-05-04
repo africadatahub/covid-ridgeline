@@ -1,0 +1,20 @@
+{
+    "colors": [
+        { "region": "Northern Africa", "color": "#fb8500" },
+        { "region": "Central Africa", "color": "#ffb703" },
+        { "region": "Western Africa", "color": "#023047" },
+        { "region": "Eastern Africa", "color": "#219ebc" },
+        { "region": "Southern Africa", "color": "#8ecae6" }
+    ],
+    "settings": {
+        "height": 800,
+        "width": null,
+        "margin": {
+            "top": 100, 
+            "right": 70, 
+            "bottom": 30, 
+            "left": 100
+        },
+        "overlap": 6
+    }
+}
