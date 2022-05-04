@@ -3,30 +3,15 @@ import React from 'react';
 import _ from 'lodash';
 import * as d3 from 'd3';
 import * as Color from 'color';
+import * as settings from '../data/settings.json';
 
 export class JoyChart extends React.Component {
     
     constructor(){
         super();
         this.state = {
-            colors: [
-                { region: 'Northern Africa', color: '#fb8500' },
-                { region: 'Central Africa', color: '#ffb703' },
-                { region: 'Western Africa', color: '#023047' },
-                { region: 'Eastern Africa', color: '#219ebc' },
-                { region: 'Southern Africa', color: '#8ecae6' }
-            ],
-            settings: {
-                height: 800,
-                width: undefined,
-                margin: {
-                    top: 100, 
-                    right: 70, 
-                    bottom: 30, 
-                    left: 100
-                },
-                overlap: 6
-            },
+            colors: settings.colors,
+            settings: settings.settings,
             container: null
         }
     }
@@ -56,7 +41,6 @@ export class JoyChart extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (snapshot == true) {
-            console.log('JoyChart Updating');
             this.showData();
         }
     }

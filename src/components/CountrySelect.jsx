@@ -4,26 +4,18 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import getCountryISO2 from 'country-iso-3-to-2';
 import ReactCountryFlag from 'react-country-flag';
 import _ from 'lodash';
-
-
+import * as settings from '../data/settings.json';
 
 export class CountrySelect extends React.Component {
     
     constructor(){
         super();
         this.state = {
-            colors: [
-                { region: 'Northern Africa', color: '#fb8500' },
-                { region: 'Central Africa', color: '#ffb703' },
-                { region: 'Western Africa', color: '#023047' },
-                { region: 'Eastern Africa', color: '#219ebc' },
-                { region: 'Southern Africa', color: '#8ecae6' }
-            ]
+            colors: settings.colors
         }
     }
 
     componentDidMount() {
-
     }
 
     isSelected(country) {
