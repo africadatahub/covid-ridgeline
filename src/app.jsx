@@ -10,12 +10,7 @@ import Row from 'react-bootstrap/Row';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
 import Spinner from 'react-bootstrap/Spinner';
-
-import getCountryISO2 from 'country-iso-3-to-2';
-import ReactCountryFlag from 'react-country-flag';
 
 import Nouislider from "nouislider-react";
 import "nouislider/dist/nouislider.css";
@@ -26,6 +21,7 @@ import moment from 'moment';
 // import { faCalendarDay, faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
 
 import { JoyChart } from './components/JoyChart';
+import { CountrySelect } from './components/CountrySelect';
 
 import './app.scss';
 import { select } from 'd3';
@@ -325,7 +321,6 @@ export class App extends React.Component {
             country.values = filteredValues; 
         })
 
-
         this.setState({
             currentData: filteredData,
             loading: false
@@ -339,15 +334,32 @@ export class App extends React.Component {
 
         let selectedCountries = this.state.selectedCountries;
 
-        values.forEach((value) => {
+        if(values.length > 1) {
 
-            if(selectedCountries.indexOf(value) == -1) {
-                selectedCountries.push(value);
+            if(values.every(iso_code => selectedCountries.includes(iso_code))) {
+                values.forEach((value) => {
+                    selectedCountries = _.without(selectedCountries, value);
+                })
             } else {
-                selectedCountries = _.without(selectedCountries, value)
+                values.forEach((value) => {
+                    if(selectedCountries.indexOf(value) == -1) {
+                        selectedCountries.push(value);
+                    }
+                })
             }
 
-        })
+
+        } else {
+
+            values.forEach((value) => {
+                if(selectedCountries.indexOf(value) == -1) {
+                    selectedCountries.push(value);
+                } else {
+                    selectedCountries = _.without(selectedCountries, value);
+                }
+            })
+
+        }
 
         this.setState({
             loading: true,
@@ -394,39 +406,12 @@ export class App extends React.Component {
                     <Container className="py-4">
                         <Row>
                             <Col xs="auto">
-                                <DropdownButton title="Selected Countries" variant="control-grey" className="country-select" autoClose="outside">
-                                    <Dropdown.Item style={{background: this.state.selectedCountries.length == 55 ? 'rgba(138, 164, 171, 0.1)' : 'transparent'}}>
-                                        <div className="d-inline-block me-2">
-                                            <div className={this.state.selectedCountries.length == 55 ? 'custom-checkbox custom-checkbox-checked' : 'custom-checkbox'} onClick={(e) => this.filterByCountry(e)} value={this.state.countries.map((country) => country.iso_code)}/>
-                                        </div>
-                                        <div className="text-black d-inline-block ms-1" style={{position: 'relative', top: '-5px'}}>All Countries</div>
-                                    </Dropdown.Item>
-                                    {this.state.countriesSelectBox.map((country,index) => (
-                                        <Dropdown.Item key={country.iso_code} style={{background: _.find(this.state.selectedCountries, o => o == country.iso_code) != undefined ? 'rgba(138, 164, 171, 0.1)' : 'transparent'}}>
-                                            <div className="d-inline-block me-2">
-                                                <div className={_.find(this.state.selectedCountries, o => o == country.iso_code) != undefined ? 'custom-checkbox custom-checkbox-checked' : 'custom-checkbox'} onClick={(e) => this.filterByCountry(e)} value={country.iso_code}/>
-                                            </div>
-                                            { country.region ?
-                                                <div style={{width: '1.5em', height: '1.5em', borderRadius: '50%', overflow: 'hidden', position: 'relative', display: 'inline-block'}} className="border">
-                                                    <ReactCountryFlag
-                                                    svg
-                                                    countryCode={getCountryISO2(country.iso_code)}
-                                                    style={{
-                                                        position: 'absolute', 
-                                                        top: '30%',
-                                                        left: '30%',
-                                                        marginTop: '-50%',
-                                                        marginLeft: '-50%',
-                                                        fontSize: '2em',
-                                                        lineHeight: '2em',
-                                                    }}/>
-                                                </div>
-                                            : '' }
-                                            <div className="text-black d-inline-block ms-1" style={{position: 'relative', top: '-5px'}}>{country.location}</div>
-                                        </Dropdown.Item>
-                                    ))}
-                                </DropdownButton>
-                                
+                                <CountrySelect 
+                                    countries={this.state.countries}
+                                    countriesSelectBox={this.state.countriesSelectBox}
+                                    selectedCountries={this.state.selectedCountries}
+                                    filterByCountry={this.filterByCountry}
+                                />
                             </Col>
                             <Col xs="auto">
                                 <Form.Select className="control-grey" onChange={this.selectMetric} value={this.state.selectedMetric}>

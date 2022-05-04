@@ -56,7 +56,7 @@ export class JoyChart extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (snapshot == true) {
-            console.log('JoyChart::componentDidUpdate');
+            console.log('JoyChart Updating');
             this.showData();
         }
     }
@@ -162,11 +162,15 @@ export class JoyChart extends React.Component {
                 .style("opacity", "0.6");
             
             chart.attr("d", d => {
-                return area(d.values)
-            })
-            .attr("transform", d => {
-                return `translate(0,${y(d) + 1})`
-            })
+                    return area(d.values)
+                })
+                .attr("id", d => d.iso_code)
+                .attr("transform", d => {
+                    return `translate(0,${y(d) + 1})`
+                })
+                .attr("fill", (d,i) => {
+                    return this.getColor(d,i);
+                })
 
             chart.exit().remove();
         }, 200);
@@ -291,12 +295,8 @@ export class JoyChart extends React.Component {
         })
 
     }
-
-    updateData = (incomingData, countries) => {
-        
-        
-    }
-
+    
+   
     render() {
         return <svg id="JoyChart"></svg>
     }
