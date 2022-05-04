@@ -1,10 +1,19 @@
 {
-    "colors": [
-        { "region": "Northern Africa", "color": "#fb8500" },
-        { "region": "Central Africa", "color": "#ffb703" },
-        { "region": "Western Africa", "color": "#023047" },
-        { "region": "Eastern Africa", "color": "#219ebc" },
-        { "region": "Southern Africa", "color": "#8ecae6" }
+    "themes": [
+        [
+            { "region": "Northern Africa", "color": "#fb8500" },
+            { "region": "Central Africa", "color": "#ffb703" },
+            { "region": "Western Africa", "color": "#023047" },
+            { "region": "Eastern Africa", "color": "#219ebc" },
+            { "region": "Southern Africa", "color": "#8ecae6" }
+        ],
+        [
+            { "region": "Northern Africa", "color": "#EF7663" },
+            { "region": "Central Africa", "color": "#F7B78C" },
+            { "region": "Western Africa", "color": "#E7E1C4" },
+            { "region": "Eastern Africa", "color": "#BCC8B4" },
+            { "region": "Southern Africa", "color": "#7A999B" }
+        ]
     ],
     "settings": {
         "height": 800,

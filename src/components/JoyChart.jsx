@@ -10,7 +10,7 @@ export class JoyChart extends React.Component {
     constructor(){
         super();
         this.state = {
-            colors: settings.colors,
+            colors: settings.themes[0],
             settings: settings.settings,
             container: null
         }
@@ -156,7 +156,11 @@ export class JoyChart extends React.Component {
                     return this.getColor(d,i);
                 })
 
-            chart.exit().remove();
+            chart.exit()
+            .transition()
+            .style("opacity", "0")
+            .remove();
+
         }, 200);
       
 
@@ -216,8 +220,6 @@ export class JoyChart extends React.Component {
                 .attr('fill','#fff')
                 .style('font-size','10px')
         }
-
-
         
         d3.select('.click-capture').on('mousemove', (e) => { 
             var mouse = d3.pointer(e, this.state.container.node());

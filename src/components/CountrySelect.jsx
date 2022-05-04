@@ -11,7 +11,7 @@ export class CountrySelect extends React.Component {
     constructor(){
         super();
         this.state = {
-            colors: settings.colors
+            colors: settings.themes[0]
         }
     }
 
