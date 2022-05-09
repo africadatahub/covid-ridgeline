@@ -26,7 +26,8 @@
     "react": ">= 16.8.x",
     "react-bootstrap": "^2.3.0",
     "react-country-flag": "^3.0.2",
-    "react-dom": ">=16.14.0"
+    "react-dom": ">=16.14.0",
+    "react-toggle-component": "^3.0.8"
   },
   "devDependencies": {
     "@parcel/transformer-sass": "2.3.2",

@@ -26,6 +26,8 @@ import { CountrySelect } from './components/CountrySelect';
 import './app.scss';
 import { select } from 'd3';
 
+import * as events from './data/events.json';
+
 
 export class App extends React.Component {
     
@@ -53,7 +55,17 @@ export class App extends React.Component {
             selectedMetric: 'new_cases_smoothed',
 
             data: [],
-            currentData: []
+            currentData: [],
+
+            events: [],
+            selectedEvents: 'none',
+            currentEvents: [],
+            event: {
+                date: null,
+                event: '',
+                title: '',
+                source: ''
+            }
         }
     }
 
@@ -303,6 +315,7 @@ export class App extends React.Component {
 
             this.setState({
                 data: finalCountriesData,
+                events: events
             }, () => this.executeQuery())
 
         })
@@ -399,6 +412,80 @@ export class App extends React.Component {
             }, () => this.executeQuery()
         )
     }
+
+    selectEvents = (e) => {
+
+        let currentEvents;
+
+        if(e.target.value == 'none') {
+            currentEvents = []
+        } else {
+
+            // Let's flatten the array to simplify the D3 data handling
+            // But we give each entry the properties of it's parent as well
+
+            let eventsSet;
+
+            if(e.target.value == 'all') {
+                eventsSet = this.state.events;
+            } else {
+                eventsSet = _.filter(this.state.events, events => events.name == e.target.value);
+            }
+
+            let events = [];
+
+            eventsSet.forEach(eventsGroup => {
+
+                eventsGroup.events.forEach(event => {
+                    event.name = eventsGroup.name;
+                    event.title = eventsGroup.title;
+                    event.source = eventsGroup.source;
+                    event.color = eventsGroup.color;
+                })
+
+                events.push(eventsGroup.events);
+
+            })
+
+            currentEvents = events;
+        } 
+
+        this.setState({
+            selectedEvents: e.target.value,
+            currentEvents: _.flatten(currentEvents)
+        }, () => this.executeQuery());
+    }
+
+    setEventText = (e) => {
+
+        let event = {
+            date: e.target.__data__.date,
+            event: e.target.__data__.event,
+            title: e.target.__data__.title,
+            source: e.target.__data__.source
+        }
+
+        this.setState({
+            event: event
+        });
+
+    }
+
+    resetEventText = () => {
+
+        let event = {
+            date: null,
+            event: '',
+            title: '',
+            source: ''
+        }
+
+
+        this.setState({
+            event: event
+        });
+
+    }
     
     render() {
         return  <>
@@ -419,12 +506,22 @@ export class App extends React.Component {
                                     <option value="new_deaths">New Deaths</option>
                                 </Form.Select>
                             </Col>
+                            <Col xs="auto">
+                                <Form.Select className="control-grey" onChange={this.selectEvents} value={this.state.selectedEvents}>
+                                    <option value="none">No Events</option>
+                                    <option value="all">All Events</option>
+                                    {
+                                        this.state.events.map(({name, title}) => <option key={name} value={name}>{title}</option>)
+                                    }
+                                </Form.Select>
+                            </Col>
                             <Col className="px-4">
                                 <Nouislider
                                     onSlide={this.onSlide}
                                     onEnd={this.onEnd}
                                     range={{ min: 0, max: this.state.dates.length - 1 }}
                                     step={1}
+                                    //behaviour='drag'
                                     start={[ 0, this.state.dates.length - 1 ]}
                                     connect={true}
                                     pips= {{
@@ -438,6 +535,7 @@ export class App extends React.Component {
                                 <h4 className="pt-2" style={{width: '200px'}}>{ moment(this.state.dates[this.state.startDate]).format('DD/MM/YY') } - { moment(this.state.dates[this.state.endDate]).format('DD/MM/YY') }</h4>
                             </Col>
                         </Row>
+                        
                     </Container>
                 </header>
 
@@ -449,13 +547,29 @@ export class App extends React.Component {
                     </div>
                 </div>
                 <div className={this.state.loading ? 'd-none' : 'd-block'}>
-                    <Container className="mt-4">
-                        <Card className="mt-4">
+                    <Container className="mt-2">
+                        { this.state.selectedEvents != 'none' ? 
+                            <Card className="mt-2 bg-info bg-opacity-25">
+                                <Card.Body>
+                                    <Row>
+                                        <Col xs={2}>{ this.state.selectedEvents == 'all' ? this.state.event.title : this.state.currentEvents[0].title }</Col>
+                                        <Col>
+                                            {this.state.event.date ? <><span className="text-strong">{ this.state.event.date }</span>: <span className="text-black-80">{ this.state.event.event }</span></> : <span>Hover over an event to see details</span> }
+                                        </Col>
+                                        <Col xs="auto" className="text-black-50">{ this.state.selectedEvents == 'all' ? <>SOURCE: { this.state.event.source }</> : <>SOURCE: { this.state.currentEvents[0].source }</> }</Col>
+                                    </Row>
+                                </Card.Body>
+                            </Card>
+                        : '' }
+                        <Card className="mt-2" id="JoyChartContainer">
                             <JoyChart 
                                 data={ this.state.currentData }
                                 countries={ this.state.countries }
                                 dates={ this.state.dateRange }
                                 selectedMetric= { this.state.selectedMetric }
+                                events = { this.state.currentEvents }
+                                setEventText = { this.setEventText }
+                                resetEventText = { this.resetEventText }
                             />
                         </Card>
                     </Container>

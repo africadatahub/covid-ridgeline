@@ -18,21 +18,22 @@ export class JoyChart extends React.Component {
 
     componentDidMount() {
 
-        setTimeout(() => {
-            var settings = {...this.state.settings}
-            settings.width = d3.select('.container').node().getBoundingClientRect().width;
-            this.setState({
-                settings,
-                container: d3.select('#JoyChart').attr('height', this.state.settings.height).attr('width', settings.width),
-            },() => this.showData())
-        }, 1000)
+        
+        var settings = {...this.state.settings}
+        settings.width = d3.select('.container').node().getBoundingClientRect().width;
+        this.setState({
+            settings,
+            container: d3.select('#JoyChart').attr('height', this.state.settings.height).attr('width', settings.width),
+        }, () => this.showData() )
+        
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
         if(this.props.countries.length != prevProps.countries.length ||
             this.props.data.length != prevProps.data.length ||
             this.props.dates.length != prevProps.dates.length ||
-            this.props.selectedMetric != prevProps.selectedMetric) {
+            this.props.selectedMetric != prevProps.selectedMetric ||
+            this.props.events != prevProps.events) {
             return true;
         } else {
             return null;
@@ -119,6 +120,18 @@ export class JoyChart extends React.Component {
                 .attr('id','chart');
         }
 
+        if(d3.select('.mouse-over-effects').empty()) {
+            this.state.container.append("g")
+                .attr("class", "mouse-over-effects");
+        }
+
+        if(d3.select('#events').empty()) {
+            this.state.container.append("g")
+                .attr('id','events');
+        }
+
+        
+
         let area = d3.area()
             .curve(d3.curveBasis)
             .x((d,i) => {
@@ -130,6 +143,7 @@ export class JoyChart extends React.Component {
             });
 
         let chart = d3.select('#chart').selectAll("g").data(data.series);
+        let events = d3.select('#events').selectAll("g").data(self.props.events);
 
         setTimeout(() => {
             
@@ -178,16 +192,63 @@ export class JoyChart extends React.Component {
                 .attr("transform", d => {
                     return `translate(0,${y(d) + 1})`
                 })
-                
 
             chart.exit()
                 .transition()
                 .style("opacity", "0")
                 .remove();
 
-         
-                
+            
+            let eventsG = events.enter().append('g')
+                .attr("class", 'marker');
+            
+            eventsG.append("path")
+                .attr("class", "event-line")
+                .style("stroke", d => d.color)
+                .style("stroke-width", "2px")
+                .style("opacity", "0.3")
+                .style('cursor','pointer')
+                .attr("d", (d) => {
+                    let eventX = _.findIndex(data.dates, date => {
+                        return new Date(date).toISOString().split('T')[0] == d.date
+                    });
+                    var d = "M" + x(data.dates[eventX]) + "," + this.state.settings.height;
+                    d += " " + x(data.dates[eventX]) + "," + 0;
+                    return d;
+                })
+                .on('mouseover', (d) => {
+                    self.props.setEventText(d);
+                })
+                .on('mouseout', (d) => {
+                    self.props.resetEventText();
+                });
 
+                
+            
+            events.select('path')
+                .attr("d", (d) => {
+                    let eventX = _.findIndex(data.dates, date => {
+                        return new Date(date).toISOString().split('T')[0] == d.date
+                    });
+                    var d = "M" + x(data.dates[eventX]) + "," + this.state.settings.height;
+                    d += " " + x(data.dates[eventX]) + "," + 0;
+                    return d;
+                })
+                .style("stroke", d => d.color)
+                .on('mouseover', (d) => {
+                    self.props.setEventText(d);
+                    
+                })
+                .on('mouseout', (d) => {
+                    self.props.resetEventText();
+                });
+
+                
+                
+            events.exit()
+                .transition()
+                .style("opacity", "0")
+                .remove();
 
 
         }, 200);
@@ -215,11 +276,9 @@ export class JoyChart extends React.Component {
 
         // MOUSEOVER STUFF
 
-        if(d3.select('.mouse-over-effects').empty()) {
+        let mouseG = d3.select('.mouse-over-effects');        
 
-            var mouseG = this.state.container.append("g")
-                .attr("class", "mouse-over-effects");
-
+        if(d3.select('.click-capture').empty()) {
             mouseG.append('rect')
                 .attr('class', 'click-capture')
                 .style('fill', 'transparent')
@@ -308,6 +367,8 @@ export class JoyChart extends React.Component {
             d3.select(".mouse-line")
             
         })
+
+        
 
     }
     

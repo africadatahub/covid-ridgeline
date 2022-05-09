@@ -1,0 +1,33 @@
+[
+    {
+        "name": "WHO",
+        "title": "WHO",
+        "source": "World Health Organization",
+        "color": "rgb(200,50,80)",
+        "events": [
+            {
+                "date": "2020-03-11",
+                "countries": null,
+                "event": "WHO characterizes COVID-19 as a pandemic"
+            },
+            {
+                "date": "2020-06-07",
+                "countries": null,
+                "event": "WHO updates masks guidance"
+            }
+        ]
+    },
+    {
+        "name": "ZAF",
+        "title": "South Africa",
+        "source": "World Health Organization",
+        "color": "rgb(100,200,100)",
+        "events": [
+            {
+                "date": "2020-03-26",
+                "countries": "ZAF",
+                "event": "South Africa enters lockdown"
+            }
+        ]
+    }
+]
