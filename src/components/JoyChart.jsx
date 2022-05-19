@@ -221,6 +221,10 @@ export class JoyChart extends React.Component {
                 })
                 .on('mouseout', (d) => {
                     self.props.resetEventText();
+                })
+                .on('click', (d) => {
+                    self.props.setEventText(d);
+                    self.props.loadEvent(d);
                 });
 
                 
@@ -237,10 +241,13 @@ export class JoyChart extends React.Component {
                 .style("stroke", d => d.color)
                 .on('mouseover', (d) => {
                     self.props.setEventText(d);
-                    
                 })
                 .on('mouseout', (d) => {
                     self.props.resetEventText();
+                })
+                .on('click', (d) => {
+                    self.props.setEventText(d);
+                    self.props.loadEvent(d);
                 });
 
                 

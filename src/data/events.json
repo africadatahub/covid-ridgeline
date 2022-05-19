@@ -1,33 +1,150 @@
 [
     {
-        "name": "WHO",
-        "title": "WHO",
-        "source": "World Health Organization",
+        "name": "important",
+        "title": "Important Events",
         "color": "rgb(200,50,80)",
         "events": [
             {
-                "date": "2020-03-11",
-                "countries": null,
-                "event": "WHO characterizes COVID-19 as a pandemic"
+              "date": "2020-02-11",
+              "location": "Global",
+              "countries": "Global",
+              "event": "New virus named COVID-19",
+              "link": "https://www.who.int/news/item/29-06-2020-covidtimeline"
             },
             {
-                "date": "2020-06-07",
-                "countries": null,
-                "event": "WHO updates masks guidance"
-            }
-        ]
-    },
-    {
-        "name": "ZAF",
-        "title": "South Africa",
-        "source": "World Health Organization",
-        "color": "rgb(100,200,100)",
-        "events": [
+              "date": "2021-01-20",
+              "location": "Global",
+              "countries": "Global",
+              "event": "Peak daily deaths recorded (18 123)",
+              "link": "https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series"
+            },
             {
-                "date": "2020-03-26",
-                "countries": "ZAF",
-                "event": "South Africa enters lockdown"
+              "date": "2020-02-14",
+              "location": "Egypt",
+              "countries": "EGY",
+              "event": "First COVID-19 case reported in Africa",
+              "link": "https://www.africanews.com/2020/02/14/covid-19-egypt-confirms-first-coronavirus-case-in-africa//"
+            },
+            {
+              "date": "2020-03-01",
+              "location": "South Africa",
+              "countries": "ZAF",
+              "event": "First case reported in South Africa",
+              "link": "https://en.wikipedia.org/wiki/Timeline_of_the_COVID-19_pandemic_in_South_Africa"
+            },
+            {
+              "date": "2020-03-23",
+              "location": "South Africa",
+              "countries": "ZAF",
+              "event": "South Africa enters lockdown \"level four",
+              "link": "https://en.wikipedia.org/wiki/Timeline_of_the_COVID-19_pandemic_in_South_Africa"
+            },
+            {
+              "date": "2020-02-27",
+              "location": "Nigeria",
+              "countries": "NGA",
+              "event": "First case reported in Nigeria",
+              "link": "https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Nigeria"
+            },
+            {
+              "date": "2020-04-25",
+              "location": "Ghana",
+              "countries": "GHA",
+              "event": "First deaths reported in Ghana",
+              "link": "https://github.com/CSSEGISandData/COVID-19"
+            },
+            {
+              "date": "2020-12-18",
+              "location": "South Africa",
+              "countries": "ZAF",
+              "event": "Beta variant confirmed in South Africa, a highly infectious variant that drives a second more deadly wave around the world",
+              "link": "https://en.wikipedia.org/wiki/SARS-CoV-2_Beta_variant"
+            },
+            {
+              "date": "2021-05-31",
+              "location": "Global",
+              "countries": "Global",
+              "event": "Delta variant, first detected in India, is named and goes on to become the predominent global strain",
+              "link": "https://en.wikipedia.org/wiki/SARS-CoV-2_Delta_variant"
+            },
+            {
+              "date": "2021-11-24",
+              "location": "South Africa",
+              "countries": "ZAF",
+              "event": "Omicron variant first detected by South African scientists. Goes on to become dominant global strain and driver of fourth wave of infetions, but symptoms are milder than previous outbreaks",
+              "link": "https://en.wikipedia.org/wiki/SARS-CoV-2_Omicron_variant"
+            },
+            {
+              "date": "2020-11-09",
+              "location": "Global",
+              "countries": "Global",
+              "event": "Pfizer releases first results of Phase III vaccine clinical trials",
+              "link": "https://fortune.com/2021/04/01/astrazeneca-covid-vaccine-timeline-news-latest-update/"
+            },
+            {
+              "date": "2020-11-23",
+              "location": "South Africa",
+              "countries": "ZAF",
+              "event": "AstraZeneca and the University of Oxford announce Phase III clinical trial results, some studies had been carried out in South Africa",
+              "link": "https://fortune.com/2021/04/01/astrazeneca-covid-vaccine-timeline-news-latest-update/"
+            },
+            {
+              "date": "2021-02-08",
+              "location": "South Africa",
+              "countries": "ZAF",
+              "event": "Scientists claim AstraZenica vaccine is not as effective against Beta variant, initial shipment of 1m doses is not distributed",
+              "link": "https://fortune.com/2021/04/01/astrazeneca-covid-vaccine-timeline-news-latest-update/"
+            },
+            {
+              "date": "2021-03-01",
+              "location": "Ghana",
+              "countries": "GHA",
+              "event": "First COVAX doses arive in Ghana",
+              "link": "https://www.google.com/search?channel=fs&client=ubuntu&q=first+covid+19+vaccine+in+africa"
+            },
+            {
+              "date": "2020-06-23",
+              "location": "South Africa",
+              "countries": "ZAF",
+              "event": "Wits University announces first vaccine trials",
+              "link": "https://www.wits.ac.za/news/latest-news/research-news/2020/2020-06/the-first-covid-19-vaccine-trial-in-south-africa-begins.html"
+            },
+            {
+              "date": "2021-12-21",
+              "location": "ZImbabwe",
+              "countries": "ZWE",
+              "event": "New hard lockdown announced in face of Omicron variant surge",
+              "link": "http://www.mohcc.gov.zw/index.php?option=com_content&view=article&id=418:new-lockdown-measures-announced&catid=84&Itemid=435"
+            },
+            {
+              "date": "2021-01-10",
+              "location": "Egypt and Seychelles",
+              "countries": "Global",
+              "event": "Egypt and Seychelles become the first African countries to take delivery of vaccines (outside of testing). They begin rolling out Sinopharm by the end of the month",
+              "link": "https://media.mg.co.za/wp-media/6155ef88-thecontinentissue34.pdf"
+            },
+            {
+              "date": "2021-08-10",
+              "location": "Tanzania, The United Republic of",
+              "countries": "TZA",
+              "event": "Tanzania admits to first COVID-19 case since May 2020, although doctors on the ground argue that the disease has been in the country but not reported",
+              "link": "https://media.mg.co.za/wp-media/eef46173-thecontinentissue36.pdf"
+            },
+            {
+              "date": "2020-04-29",
+              "location": "Madagascar",
+              "countries": "MDG",
+              "event": "At Africa CDC meeting, President Rajoelina of Madagascar claims that a herbal drink made locally can cure COVID-19. It can't",
+              "link": "https://media.mg.co.za/wp-media/2020/05/812d0b02-thecontinentissue4.pdf"
+            },
+            {
+              "date": "2020-11-19",
+              "location": "South Africa",
+              "countries": "ZAF",
+              "event": "South Africa reopens airports for international travel",
+              "link": "https://www.travelagentcentral.com/africa-indian-ocean/south-africa-reopens-to-all-international-travelers"
             }
-        ]
+          ]
     }
+    
 ]

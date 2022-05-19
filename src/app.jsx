@@ -11,6 +11,7 @@ import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
+import Modal from 'react-bootstrap/Modal';
 
 import Nouislider from "nouislider-react";
 import "nouislider/dist/nouislider.css";
@@ -63,9 +64,11 @@ export class App extends React.Component {
             event: {
                 date: null,
                 event: '',
+                countries: '',
                 title: '',
                 source: ''
-            }
+            },
+            eventModal: false
         }
     }
 
@@ -461,8 +464,9 @@ export class App extends React.Component {
         let event = {
             date: e.target.__data__.date,
             event: e.target.__data__.event,
+            countries: e.target.__data__.countries,
             title: e.target.__data__.title,
-            source: e.target.__data__.source
+            link: e.target.__data__.link
         }
 
         this.setState({
@@ -472,19 +476,55 @@ export class App extends React.Component {
     }
 
     resetEventText = () => {
-
+        
         let event = {
             date: null,
             event: '',
+            countries: '',
             title: '',
-            source: ''
+            link: ''
+        }
+
+        if(!this.state.eventModal) {
+
+            this.setState({
+                event: event
+            });
+
+        }
+
+    }
+
+    loadEvent = (e) => {
+
+        let event = {
+            date: e.target.__data__.date,
+            event: e.target.__data__.event,
+            countries: e.target.__data__.countries,
+            title: e.target.__data__.title,
+            link: e.target.__data__.link
+        }
+
+        this.setState({
+            event: event,
+            eventModal: true
+        });
+    }
+
+    closeEventModal = (e) => {
+        let event = {
+            date: null,
+            event: '',
+            countries: '',
+            title: '',
+            link: ''
         }
 
 
         this.setState({
-            event: event
+            event: event,
+            eventModal: false
         });
-
     }
     
     render() {
@@ -549,17 +589,31 @@ export class App extends React.Component {
                 <div className={this.state.loading ? 'd-none' : 'd-block'}>
                     <Container className="mt-2">
                         { this.state.selectedEvents != 'none' ? 
-                            <Card className="mt-2 bg-info bg-opacity-25">
-                                <Card.Body>
-                                    <Row>
-                                        <Col xs={2}>{ this.state.selectedEvents == 'all' ? this.state.event.title : this.state.currentEvents[0].title }</Col>
-                                        <Col>
-                                            {this.state.event.date ? <><span className="text-strong">{ this.state.event.date }</span>: <span className="text-black-80">{ this.state.event.event }</span></> : <span>Hover over an event to see details</span> }
-                                        </Col>
-                                        <Col xs="auto" className="text-black-50">{ this.state.selectedEvents == 'all' ? <>SOURCE: { this.state.event.source }</> : <>SOURCE: { this.state.currentEvents[0].source }</> }</Col>
-                                    </Row>
-                                </Card.Body>
-                            </Card>
+                            <>
+                                <Card className="mt-2 bg-info bg-opacity-25">
+                                    <Card.Body>
+                                        <Row>
+                                            <Col>
+                                                <span className="fs-5">{ this.state.event.title }</span><br/>
+                                                {this.state.event.date ? <><span className="fs-6">{ this.state.event.date }:</span> <span className="text-black-80">{ this.state.event.event }</span></> : <span>Click an event to see details</span> }
+                                            </Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
+                                <Modal show={this.state.eventModal} onHide={this.closeEventModal}>
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>{this.state.event.title}</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <h5>{this.state.event.date}</h5>
+                                        <p>{this.state.event.countries}</p>
+                                        <p className="fs-4">{this.state.event.event}</p>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <p><strong>SOURCE:</strong><br/><a className="text-decoration-none" href={this.state.event.link} target="_blank">{this.state.event.link}</a></p>
+                                    </Modal.Footer>
+                                </Modal>
+                            </>
                         : '' }
                         <Card className="mt-2" id="JoyChartContainer">
                             <JoyChart 
@@ -570,6 +624,7 @@ export class App extends React.Component {
                                 events = { this.state.currentEvents }
                                 setEventText = { this.setEventText }
                                 resetEventText = { this.resetEventText }
+                                loadEvent = { this.loadEvent }
                             />
                         </Card>
                     </Container>
