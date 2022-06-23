@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:type" content="article" />
@@ -15,17 +16,46 @@
     <meta name="twitter:site" content="@Africa_DataHub">
     <meta name="twitter:creator" content="@Africa_DataHub">
     <link href="adh-favicon.png" rel="shortcut icon" type="image/x-icon">
+
     <title>ADH - Covid Wave Watch</title>
-  </head>
-  <body>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-WQ28RGC');
+    </script>
+    <!-- End Google Tag Manager -->
+
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WQ28RGC" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <div class="app"></div>
     <script type="module" src="app.jsx"></script>
 
     <script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>
     <script>
-      var pymChild = new pym.Child({ polling: 1000 });
+        var pymChild = new pym.Child({
+            polling: 1000
+        });
     </script>
-  
 
-  </body>
+
+</body>
+
 </html>
