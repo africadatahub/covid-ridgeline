@@ -36,8 +36,8 @@ export class App extends React.Component {
         super();
         this.state = {
             api: {
-                baseUrl: 'https://adhtest.opencitieslab.org/api/3/',
-                countryData: 'b2b6b48a-3685-4e1a-8d8c-8aab5bae3118' 
+                baseUrl: 'https://ckandev.africadatahub.org/api/3/',
+                countryData: '65a5b80d-b57a-43d4-bf9c-20cafddc7d60' 
             },
 
             loading: true,
@@ -295,6 +295,7 @@ export class App extends React.Component {
                 }
 
                 sortedFilledArray = _.sortBy(country.allValues, (o) => { return o.date; } );
+                
                 country.allValues = sortedFilledArray;
                 country.values = sortedFilledArray;
                 
