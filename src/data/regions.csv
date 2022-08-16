@@ -2,41 +2,9 @@ region,country,iso_code
 Northern Africa,Algeria,DZA
 Northern Africa,Egypt,EGY
 Northern Africa,Libya,LBY
+Northern Africa,Mauritania,MRT
 Northern Africa,Morocco,MAR
-Northern Africa,Sudan,SDN
 Northern Africa,Tunisia,TUN
-Eastern Africa,Burundi,BDI
-Eastern Africa,Comoros,COM
-Eastern Africa,Djibouti,DJI
-Eastern Africa,Eritrea,ERI
-Eastern Africa,Ethiopia,ETH
-Eastern Africa,Kenya,KEN
-Eastern Africa,Madagascar,MDG
-Eastern Africa,Malawi,MWI
-Eastern Africa,Mauritius,MUS
-Eastern Africa,Mozambique,MOZ
-Eastern Africa,Rwanda,RWA
-Eastern Africa,Seychelles,SYC
-Eastern Africa,Somalia,SOM
-Eastern Africa,South Sudan,SSD
-Eastern Africa,Tanzania,TZA
-Eastern Africa,Uganda,UGA
-Eastern Africa,Zambia,ZMB
-Eastern Africa,Zimbabwe,ZWE
-Central Africa,Angola,AGO
-Central Africa,Cameroon,CMR
-Central Africa,Central African Republic,CAF
-Central Africa,Chad,TCD
-Central Africa,Democratic Republic of Congo,COD
-Central Africa,Congo,COG
-Central Africa,Equatorial Guinea,GNQ
-Central Africa,Gabon,GAB
-Central Africa,Sao Tome and Principe,STP
-Southern Africa,Botswana,BWA
-Southern Africa,Eswatini,SWZ
-Southern Africa,Lesotho,LSO
-Southern Africa,Namibia,NAM
-Southern Africa,South Africa,ZAF
 Western Africa,Benin,BEN
 Western Africa,Burkina Faso,BFA
 Western Africa,Cape Verde,CPV
@@ -47,10 +15,42 @@ Western Africa,Guinea,GIN
 Western Africa,Guinea-Bissau,GNB
 Western Africa,Liberia,LBR
 Western Africa,Mali,MLI
-Western Africa,Mauritania,MRT
 Western Africa,Niger,NER
 Western Africa,Nigeria,NGA
-Western Africa,Saint Helena,SHN
 Western Africa,Senegal,SEN
 Western Africa,Sierra Leone,SLE
+Western Africa,Saint Helena,SHN
 Western Africa,Togo,TGO
+Eastern Africa,Comoros,COM
+Eastern Africa,Djibouti,DJI
+Eastern Africa,Eritrea,ERI
+Eastern Africa,Ethiopia,ETH
+Eastern Africa,Kenya,KEN
+Eastern Africa,Madagascar,MDG
+Eastern Africa,Mauritius,MUS
+Eastern Africa,Rwanda,RWA
+Eastern Africa,Seychelles,SYC
+Eastern Africa,Somalia,SOM
+Eastern Africa,South Sudan,SSD
+Eastern Africa,Sudan,SDN
+Eastern Africa,Tanzania,TZA
+Eastern Africa,Uganda,UGA
+Central Africa,Burundi,BDI
+Central Africa,Cameroon,CMR
+Central Africa,Central African Republic,CAF
+Central Africa,Chad,TCD
+Central Africa,Democratic Republic of Congo,COD
+Central Africa,Congo,COG
+Central Africa,Equatorial Guinea,GNQ
+Central Africa,Gabon,GAB
+Central Africa,Sao Tome and Principe,STP
+Southern Africa,Angola,AGO
+Southern Africa,Botswana,BWA
+Southern Africa,Eswatini,SWZ
+Southern Africa,Lesotho,LSO
+Southern Africa,Malawi,MWI
+Southern Africa,Mozambique,MOZ
+Southern Africa,Namibia,NAM
+Southern Africa,South Africa,ZAF
+Southern Africa,Zambia,ZMB
+Southern Africa,Zimbabwe,ZWE
